@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StudyFlow - Organização de Estudos e Rotinas</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #ec4899;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  [data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --text-light: #94a3b8;
+    --border: #334155;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 1.25rem 2rem;
+    box-shadow: var(--shadow-lg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .icon-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-btn:hover {
+    background: rgba(255,255,255,0.3);
+  }
+
+  /* NAVIGATION */
+  nav {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky;
+    top: 78px;
+    z-index: 99;
+  }
+
+  .nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-btn:hover {
+    color: var(--primary);
+  }
+
+  .nav-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  /* MAIN */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* DASHBOARD */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--card);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stat-info h3 {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-info .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .stat-icon.blue { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  .stat-icon.pink { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+  .stat-icon.green { background: linear-gradient(135deg, #10b981, #14b8a6); }
+  .stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #f97316); }
+
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  /* FORMS */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: border 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-light);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    background: var(--bg);
+  }
+
+  /* SUBJECTS GRID */
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .subject-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .subject-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--subject-color, var(--primary));
+  }
+
+  .subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+
+  .subject-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .subject-hours {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+  }
+
+  .progress-bar {
+    background: var(--bg);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0.75rem 0;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+
+  .subject-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .subject-actions .btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  /* SCHEDULE */
+  .schedule-grid {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .schedule-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 1rem;
+    align-items: center;
+    background: var(--card);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .day-label {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .schedule-input {
+    padding: 0.5rem;
+  }
+
+  /* TASKS */
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .task-item:hover {
+    box-shadow: var(--shadow);
+  }
+
+  .task-item.completed {
+    opacity: 0.6;
+  }
+
+  .task-item.completed .task-text {
+    text-decoration: line-through;
+  }
+
+  .task-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .task-checkbox.checked {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .task-text {
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  .task-meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  .priority-badge {
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .priority-high { background: #fee2e2; color: #dc2626; }
+  .priority-medium { background: #fef3c7; color: #d97706; }
+  .priority-low { background: #d1fae5; color: #059669; }
+
+  /* POMODORO */
+  .pomodoro-container {
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .timer-display {
+    font-size: 5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary);
+    margin: 1.5rem 0;
+    letter-spacing: -2px;
+  }
+
+  .timer-mode {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .timer-mode.break {
+    background: var(--success);
+  }
+
+  .timer-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .timer-btn {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+
+  .pomodoro-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .pomo-stat {
+    text-align: center;
+  }
+
+  .pomo-stat .num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .pomo-stat .label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+  }
+
+  .timer-presets {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .preset-btn {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.85rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-light);
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal h2 {
+    margin-bottom: 1.25rem;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    header { padding: 1rem; }
+    main { padding: 1rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .timer-display { font-size: 3.5rem; }
+    .schedule-row { grid-template-columns: 1fr; }
+    .day-label { margin-bottom: 0.5rem; }
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--success);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    transform: translateX(400px);
+    transition: transform 0.3s;
+    z-index: 2000;
+  }
+
+  .toast.show {
+    transform: translateX(0);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="logo">
+      <div class="logo-icon">📚</div>
+      <span>StudyFlow</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeBtn" title="Alternar tema">🌙</button>
+      <button class="icon-btn" id="exportBtn" title="Exportar dados">💾</button>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-content">
+    <button class="nav-btn active" data-tab="dashboard">📊 Visão Geral</button>
+    <button class="nav-btn" data-tab="subjects">📚 Matérias</button>
+    <button class="nav-btn" data-tab="schedule">📅 Cronograma</button>
+    <button class="nav-btn" data-tab="tasks">✅ Tarefas</button>
+    <button class="nav-btn" data-tab="pomodoro">⏱️ Pomodoro</button>
+    <button class="nav-btn" data-tab="routine">🌅 Rotina</button>
+  </div>
+</nav>
+
+<main>
+  <!-- DASHBOARD -->
+  <section class="tab-content active" id="dashboard">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-info">
+          <h3>Matérias Ativas</h3>
+          <div class="value" id="stat-subjects">0</div>
+        </div>
+        <div class="stat-icon blue">📚</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <h3>Tarefas Pendentes</h3>
+          <div class="value" id="stat-tasks">0</div>
+        </div>
+        <div class="stat-icon pink">✅</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <h3>Horas Estudadas</h3>
+          <div class="value" id="stat-hours">0h</div>
+        </div>
+        <div class="stat-icon green">⏰</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <h3>Pomodoros Hoje</h3>
+          <div class="value" id="stat-pomodoros">0</div>
+        </div>
+        <div class="stat-icon orange">🍅</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📌 Próximas Tarefas</h2>
+      </div>
+      <div id="upcoming-tasks"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">🎯 Progresso por Matéria</h2>
+      </div>
+      <div id="subjects-progress"></div>
+    </div>
+  </section>
+
+  <!-- SUBJECTS -->
+  <section class="tab-content" id="subjects">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Adicionar Matéria</h2>
+      </div>
+      <form id="subjectForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome da Matéria *</label>
+            <input type="text" id="subjectName" required placeholder="Ex: Matemática">
+          </div>
+          <div class="form-group">
+            <label>Cor</label>
+            <input type="color" id="subjectColor" value="#6366f1">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Meta de Horas Semanais</label>
+            <input type="number" id="subjectHours" min="0" step="0.5" value="4">
+          </div>
+          <div class="form-group">
+            <label>Prioridade</label>
+            <select id="subjectPriority">
+              <option value="low">Baixa</option>
+              <option value="medium" selected>Média</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descrição / Tópicos</label>
+          <textarea id="subjectDescription" placeholder="Tópicos que serão estudados..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">➕ Adicionar Matéria</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Minhas Matérias</h2>
+      </div>
+      <div class="subjects-grid" id="subjectsList"></div>
+    </div>
+  </section>
+
+  <!-- SCHEDULE -->
+  <section class="tab-content" id="schedule">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Cronograma Semanal de Estudos</h2>
+        <button class="btn btn-primary" id="saveSchedule">💾 Salvar</button>
+      </div>
+      <div class="schedule-grid" id="scheduleGrid"></div>
+    </div>
+  </section>
+
+  <!-- TASKS -->
+  <section class="tab-content" id="tasks">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Nova Tarefa</h2>
+      </div>
+      <form id="taskForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tarefa *</label>
+            <input type="text" id="taskText" required placeholder="O que precisa ser feito?">
+          </div>
+          <div class="form-group">
+            <label>Matéria</label>
+            <select id="taskSubject">
+              <option value="">Geral</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data de Entrega</label>
+            <input type="date" id="taskDate">
+          </div>
+          <div class="form-group">
+            <label>Prioridade</label>
+            <select id="taskPriority">
+              <option value="low">Baixa</option>
+              <option value="medium" selected>Média</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">➕ Adicionar Tarefa</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Minhas Tarefas</h2>
+        <div>
+          <select id="filterTasks" style="width: auto; display: inline-block;">
+            <option value="all">Todas</option>
+            <option value="pending">Pendentes</option>
+            <option value="completed">Concluídas</option>
+          </select>
+        </div>
+      </div>
+      <div class="task-list" id="tasksList"></div>
+    </div>
+  </section>
+
+  <!-- POMODORO -->
+  <section class="tab-content" id="pomodoro">
+    <div class="card">
+      <div class="pomodoro-container">
+        <span class="timer-mode" id="timerMode">FOCO</span>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+
+        <div class="timer-presets">
+          <button class="btn preset-btn" data-minutes="15">15 min</button>
+          <button class="btn preset-btn" data-minutes="25">25 min</button>
+          <button class="btn preset-btn" data-minutes="45">45 min</button>
+          <button class="btn preset-btn" data-minutes="60">60 min</button>
+        </div>
+
+        <div class="timer-controls">
+          <button class="btn btn-primary timer-btn" id="startTimer">▶ Iniciar</button>
+          <button class="btn btn-ghost timer-btn" id="pauseTimer">⏸ Pausar</button>
+          <button class="btn btn-ghost timer-btn" id="resetTimer">↺ Resetar</button>
+          <button class="btn btn-success timer-btn" id="skipTimer">⏭ Pular</button>
+        </div>
+
+        <div class="pomodoro-stats">
+          <div class="pomo-stat">
+            <div class="num" id="pomoCompleted">0</div>
+            <div class="label">Concluídos Hoje</div>
+          </div>
+          <div class="pomo-stat">
+            <div class="num" id="pomoStreak">0</div>
+            <div class="label">Sequência</div>
+          </div>
+          <div class="pomo-stat">
+            <div class="num" id="pomoTotal">0</div>
+            <div class="label">Total Geral</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUTINE -->
+  <section class="tab-content" id="routine">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Rotina Diária</h2>
+        <button class="btn btn-primary" id="addRoutine">➕ Adicionar Atividade</button>
+      </div>
+      <div id="routineList"></div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle">Editar</h2>
+    <div id="modalContent"></div>
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+      <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
+      <button class="btn btn-primary" id="modalSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================== STATE ====================== */
+const state = {
+  subjects: [],
+  tasks: [],
+  schedule: {},
+  routine: [],
+  pomodoro: { completed: 0, total: 0, streak: 0, today: 0, lastDate: '' },
+  theme: 'light'
+};
+
+const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+/* ====================== STORAGE ====================== */
+function loadState() {
+  const saved = localStorage.getItem('studyflow_data');
+  if (saved) {
+    const data = JSON.parse(saved);
+    Object.assign(state, data);
+  }
+  // Reset today counter if new day
+  const today = new Date().toDateString();
+  if (state.pomodoro.lastDate !== today) {
+    state.pomodoro.today = 0;
+    state.pomodoro.streak = 0;
+    state.pomodoro.lastDate = today;
+  }
+  state.theme = localStorage.getItem('studyflow_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', state.theme);
+}
+
+function saveState() {
+  localStorage.setItem('studyflow_data', JSON.stringify(state));
+}
+
+/* ====================== UTILITIES ====================== */
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.borderLeftColor = type === 'success' ? 'var(--success)' :
+                                  type === 'error' ? 'var(--danger)' : 'var(--warning)';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+
+/* ====================== NAVIGATION ====================== */
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ====================== THEME ====================== */
+document.getElementById('themeBtn').addEventListener('click', () => {
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', state.theme);
+  localStorage.setItem('studyflow_theme', state.theme);
+  document.getElementById('themeBtn').textContent = state.theme === 'light' ? '🌙' : '☀️';
+});
+
+/* ====================== EXPORT ====================== */
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `studyflow_backup_${Date.now()}.json`;
+  a.click();
+  showToast('Dados exportados com sucesso!');
+});
+
+/* ====================== SUBJECTS ====================== */
+function renderSubjects() {
+  const list = document.getElementById('subjectsList');
+  const select = document.getElementById('taskSubject');
+
+  if (state.subjects.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div>Nenhuma matéria cadastrada</div>';
+  } else {
+    list.innerHTML = state.subjects.map(s => {
+      const hoursStudied = state.pomodoro.today * 0.4; // aproximação
+      const progress = Math.min(100, (hoursStudied / s.hours) * 100);
+      return `
+        <div class="subject-card" style="--subject-color: ${s.color}">
+          <div class="subject-header">
+            <div class="subject-name">${s.name}</div>
+            <span class="priority-badge priority-${s.priority}">${s.priority === 'high' ? 'Alta' : s.priority === 'medium' ? 'Média' : 'Baixa'}</span>
+          </div>
+          <div class="subject-hours">📊 Meta: ${s.hours}h/semana</div>
+          ${s.description ? `<p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem;">${s.description}</p>` : ''}
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%; background: ${s.color}"></div>
+          </div>
+          <div class="subject-actions">
+            <button class="btn btn-ghost" onclick="editSubject('${s.id}')">✏️ Editar</button>
+            <button class="btn btn-danger" onclick="deleteSubject('${s.id}')">🗑️ Excluir</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Update select
+  select.innerHTML = '<option value="">Geral</option>' +
+    state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+  updateDashboard();
+}
+
+document.getElementById('subjectForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const subject = {
+    id: Date.now().toString(),
+    name: document.getElementById('subjectName').value,
+    color: document.getElementById('subjectColor').value,
+    hours: parseFloat(document.getElementById('subjectHours').value) || 0,
+    priority: document.getElementById('subjectPriority').value,
+    description: document.getElementById('subjectDescription').value
+  };
+  state.subjects.push(subject);
+  saveState();
+  renderSubjects();
+  e.target.reset();
+  showToast('Matéria adicionada com sucesso!');
+});
+
+function deleteSubject(id) {
+  if (confirm('Deseja excluir esta matéria?')) {
+    state.subjects = state.subjects.filter(s => s.id !== id);
+    saveState();
+    renderSubjects();
+    showToast('Matéria excluída', 'warning');
+  }
+}
+
+function editSubject(id) {
+  const subject = state.subjects.find(s => s.id === id);
+  if (!subject) return;
+  const newName = prompt('Novo nome:', subject.name);
+  if (newName) {
+    subject.name = newName;
+    saveState();
+    renderSubjects();
+    showToast('Matéria atualizada!');
+  }
+}
+
+/* ====================== TASKS ====================== */
+function renderTasks() {
+  const list = document.getElementById('tasksList');
+  const filter = document.getElementById('filterTasks').value;
+
+  let tasks = [...state.tasks];
+  if (filter === 'pending') tasks = tasks.filter(t => !t.completed);
+  if (filter === 'completed') tasks = tasks.filter(t => t.completed);
+
+  // Sort: incomplete first, then by date, then priority
+  tasks.sort((a, b) => {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    if (a.date && b.date) return a.date.localeCompare(b.date);
+    if (a.date) return -1;
+    if (b.date) return 1;
+    const prio = { high: 0, medium: 1, low: 2 };
+    return prio[a.priority] - prio[b.priority];
+  });
+
+  if (tasks.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div>Nenhuma tarefa</div>';
+  } else {
+    list.innerHTML = tasks.map(t => {
+      const subject = state.subjects.find(s => s.id === t.subject);
+      return `
+        <div class="task-item ${t.completed ? 'completed' : ''}">
+          <div class="task-checkbox ${t.completed ? 'checked' : ''}" onclick="toggleTask('${t.id}')">
+            ${t.completed ? '✓' : ''}
+          </div>
+          <div class="task-text">
+            ${t.text}
+            <div class="task-meta">
+              ${subject ? `<span style="color: ${subject.color}">● ${subject.name}</span>` : ''}
+              ${t.date ? `<span>📅 ${formatDate(t.date)}</span>` : ''}
+              <span class="priority-badge priority-${t.priority}">${t.priority === 'high' ? 'Alta' : t.priority === 'medium' ? 'Média' : 'Baixa'}</span>
+            </div>
+          </div>
+          <button class="btn btn-danger" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" onclick="deleteTask('${t.id}')">🗑️</button>
+        </div>
+      `;
+    }).join('');
+  }
+  updateDashboard();
+}
+
+document.getElementById('taskForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const task = {
+    id: Date.now().toString(),
+    text: document.getElementById('taskText').value,
+    subject: document.getElementById('taskSubject').value,
+    date: document.getElementById('taskDate').value,
+    priority: document.getElementById('taskPriority').value,
+    completed: false,
+    createdAt: new Date().toISOString()
+  };
+  state.tasks.push(task);
+  saveState();
+  renderTasks();
+  e.target.reset();
+  showToast('Tarefa adicionada!');
+});
+
+function toggleTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (task) {
+    task.completed = !task.completed;
+    saveState();
+    renderTasks();
+  }
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  saveState();
+  renderTasks();
+  showToast('Tarefa excluída', 'warning');
+}
+
+document.getElementById('filterTasks').addEventListener('change', renderTasks);
+
+/* ====================== SCHEDULE ====================== */
+function renderSchedule() {
+  const grid = document.getElementById('scheduleGrid');
+  grid.innerHTML = DAYS.map(day => `
+    <div class="schedule-row">
+      <div class="day-label">${day}</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+        <input type="time" class="schedule-input" data-day="${day}" data-field="start" value="${state.schedule[day]?.start || ''}">
+        <input type="text" class="schedule-input" data-day="${day}" data-field="activity" placeholder="Atividade / Matéria" value="${state.schedule[day]?.activity || ''}">
+        <input type="time" class="schedule-input" data-day="${day}" data-field="end" value="${state.schedule[day]?.end || ''}">
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('saveSchedule').addEventListener('click', () => {
+  document.querySelectorAll('.schedule-input').forEach(input => {
+    const day = input.dataset.day;
+    const field = input.dataset.field;
+    if (!state.schedule[day]) state.schedule[day] = {};
+    state.schedule[day][field] = input.value;
+  });
+  saveState();
+  showToast('Cronograma salvo!');
+});
+
+/* ====================== POMODORO ====================== */
+let timer = {
+  interval: null,
+  remaining: 25 * 60,
+  total: 25 * 60,
+  running: false,
+  mode: 'focus' // focus | short | long
+};
+
+function updateTimerDisplay() {
+  document.getElementById('timerDisplay').textContent = formatTime(timer.remaining);
+  const modeEl = document.getElementById('timerMode');
+  if (timer.mode === 'focus') {
+    modeEl.textContent = 'FOCO';
+    modeEl.className = 'timer-mode';
+  } else if (timer.mode === 'short') {
+    modeEl.textContent = 'PAUSA CURTA';
+    modeEl.className = 'timer-mode break';
+  } else {
+    modeEl.textContent = 'PAUSA LONGA';
+    modeEl.className = 'timer-mode break';
+  }
+  document.getElementById('pomoCompleted').textContent = state.pomodoro.today;
+  document.getElementById('pomoStreak').textContent = state.pomodoro.streak;
+  document.getElementById('pomoTotal').textContent = state.pomodoro.total;
+}
+
+function startTimer() {
+  if (timer.running) return;
+  timer.running = true;
+  timer.interval = setInterval(() => {
+    timer.remaining--;
+    if (timer.remaining <= 0) {
+      clearInterval(timer.interval);
+      timer.running = false;
+      if (timer.mode === 'focus') {
+        state.pomodoro.today++;
+        state.pomodoro.streak++;
+        state.pomodoro.total++;
+        showToast('🍅 Pomodoro concluído! Hora da pausa.', 'success');
+        playBeep();
+        // auto start break
+        if (state.pomodoro.streak % 4 === 0) {
+          setMode('long');
+        } else {
+          setMode('short');
+        }
+      } else {
+        showToast('⏰ Pausa finalizada! Vamos focar.', 'success');
+        playBeep();
+        setMode('focus');
+      }
+      saveState();
+      updateTimerDisplay();
+      updateDashboard();
+    } else {
+      updateTimerDisplay();
+    }
+  }, 1000);
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 800;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (e) {}
+}
+
+function pauseTimer() {
+  clearInterval(timer.interval);
+  timer.running = false;
+}
+
+function resetTimer() {
+  pauseTimer();
+  timer.remaining = timer.total;
+  updateTimerDisplay();
+}
+
+function skipTimer() {
+  pauseTimer();
+  if (timer.mode === 'focus') {
+    setMode('short');
+  } else {
+    setMode('focus');
+  }
+}
+
+function setMode(mode) {
+  timer.mode = mode;
+  if (mode === 'focus') timer.total = 25 * 60;
+  else if (mode === 'short') timer.total = 5 * 60;
+  else timer.total = 15 * 60;
+  timer.remaining = timer.total;
+  updateTimerDisplay();
+}
+
+document.getElementById('startTimer').addEventListener('click', startTimer);
+document.getElementById('pauseTimer').addEventListener('click', pauseTimer);
+document.getElementById('resetTimer').addEventListener('click', resetTimer);
+document.getElementById('skipTimer').addEventListener('click', skipTimer);
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (timer.mode !== 'focus') setMode('focus');
+    timer.total = parseInt(btn.dataset.minutes) * 60;
+    timer.remaining = timer.total;
+    updateTimerDisplay();
+  });
+});
+
+/* ====================== ROUTINE ====================== */
+function renderRoutine() {
+  const list = document.getElementById('routineList');
+  if (state.routine.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🌅</div>Nenhuma atividade cadastrada</div>';
+  } else {
+    list.innerHTML = state.routine.sort((a,b) => a.time.localeCompare(b.time)).map(r => `
+      <div class="task-item">
+        <div style="font-size: 1.2rem;">⏰</div>
+        <div style="font-weight: 600; min-width: 70px;">${r.time}</div>
+        <div class="task-text">${r.activity}</div>
+        <button class="btn btn-danger" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" onclick="deleteRoutine('${r.id}')">🗑️</button>
+      </div>
+    `).join('');
+  }
+}
+
+function deleteRoutine(id) {
+  state.routine = state.routine.filter(r => r.id !== id);
+  saveState();
+  renderRoutine();
+  showToast('Atividade removida', 'warning');
+}
+
+document.getElementById('addRoutine').addEventListener('click', () => {
+  const time = prompt('Horário (ex: 07:00):');
+  if (!time) return;
+  const activity = prompt('Atividade:');
+  if (!activity) return;
+  state.routine.push({ id: Date.now().toString(), time, activity });
+  saveState();
+  renderRoutine();
+  showToast('Atividade adicionada!');
+});
+
+/* ====================== DASHBOARD ====================== */
+function updateDashboard() {
+  document.getElementById('stat-subjects').textContent = state.subjects.length;
+  document.getElementById('stat-tasks').textContent = state.tasks.filter(t => !t.completed).length;
+  document.getElementById('stat-hours').textContent = `${(state.pomodoro.total * 0.4).toFixed(1)}h`;
+  document.getElementById('stat-pomodoros').textContent = state.pomodoro.today;
+
+  // Upcoming tasks
+  const upcoming = state.tasks
+    .filter(t => !t.completed)
+    .sort((a, b) => (a.date || 'zzz').localeCompare(b.date || 'zzz'))
+    .slice(0, 5);
+  const upcomingEl = document.getElementById('upcoming-tasks');
+  if (upcoming.length === 0) {
+    upcomingEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎉</div>Tudo em dia! Nenhuma tarefa pendente.</div>';
+  } else {
+    upcomingEl.innerHTML = upcoming.map(t => {
+      const subject = state.subjects.find(s => s.id === t.subject);
+      return `
+        <div class="task-item">
+          <div class="task-text">
+            <strong>${t.text}</strong>
+            <div class="task-meta">
+              ${subject ? `<span style="color: ${subject.color}">● ${subject.name}</span>` : ''}
+              ${t.date ? `<span>📅 ${formatDate(t.date)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Subjects progress
+  const progressEl = document.getElementById('subjects-progress');
+  if (state.subjects.length === 0) {
+    progressEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div>Adicione matérias para ver o progresso</div>';
+  } else {
+    progressEl.innerHTML = state.subjects.map(s => {
+      const progress = Math.min(100, ((state.pomodoro.total * 0.4) / (s.hours * 4)) * 100);
+      return `
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+            <span style="font-weight: 500;">${s.name}</span>
+            <span style="color: var(--text-light); font-size: 0.85rem;">${progress.toFixed(0)}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%; background: ${s.color}"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+/* ====================== INIT ====================== */
+loadState();
+document.getElementById('themeBtn').textContent = state.theme === 'light' ? '🌙' : '☀️';
+renderSubjects();
+renderTasks();
+renderSchedule();
+renderRoutine();
+updateTimerDisplay();
+updateDashboard();
+</script>
+
+</body>
+</html>
